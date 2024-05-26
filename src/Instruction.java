@@ -1,14 +1,18 @@
 public class Instruction {
+    //对输入进行解析成以下几部分
     private String inst;
     private String op;
     private String Fi;
     private String Fj;
     private String Fk;
+    //指令状态表对应的字段
     private int issue=0;
     private int read=0;
     private int exe=0;
     private int writeback=0;
+    //指令是否完成执行
     private boolean finish=false;
+    //指令完成的周期
     private int exeCycle=0;
     private FU fu;
 

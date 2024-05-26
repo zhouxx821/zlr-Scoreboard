@@ -46,14 +46,17 @@ public class ScoreBoard {
         scanner.close();
         new ScoreBoard().algorithm(instructions,addTime,multTime,divTime);
     }
+    //记分牌算法具体实现
     public void algorithm(Instruction[] instructions,int addTime,int multTime,int divTime){
         jf=TableInst(instructions);
+        //新建五个FunctionalUnit功能部件对象
         FU[] fus=new FU[5];
         fus[0]=new FU("Integer",0);
         fus[1]=new FU("Add",addTime);
         fus[2]=new FU("Mult1",multTime);
         fus[3]=new FU("Mult2",multTime);
         fus[4]=new FU("Div",divTime);
+        //寄存器Result
         Map<String, String> result = new HashMap<>(20);
         for (int i = 0; i <= 30; i += 2) {
             result.put("F" + i, null);
@@ -61,6 +64,7 @@ public class ScoreBoard {
         for(int cycle=1;;cycle++) {
             clicked=false;
             int i;
+            //如果所有的指令均执行完毕，则退出循环
             for (i = 0; i < instructions.length; i++) {
                 if (!instructions[i].getFinish()) {
                     break;
@@ -69,9 +73,12 @@ public class ScoreBoard {
             if (i >= instructions.length) {
                 break;
             }
+            //判断每一条指令是否能够流出，若某条指令流出，则退出循环
             for (i = 0; i < instructions.length; i++) {
                 if ("LD".equals(instructions[i].getOp())) {
+                    //判断指令是否已经流出
                     if (instructions[i].getIssue() == 0) {
+                        //判断指令所需功能部件是否Busy以及是否存在WAW冲突
                         if (!fus[0].getbusy() && result.get(instructions[i].getFi()) == null) {
                             issue(fus[0], instructions[i], result);
                             instructions[i].setIssue(cycle);
@@ -92,6 +99,7 @@ public class ScoreBoard {
                     }
                 } else if ("MULTD".equals(instructions[i].getOp())) {
                     if (instructions[i].getIssue() == 0) {
+                        //对于乘法指令，有mult1和mult2两个功能部件，故先判断mult1，若不满足条件则判断mult2
                         if (!fus[2].getbusy() && result.get(instructions[i].getFi()) == null) {
                             instructions[i].setFu(fus[2]);
                             issue(fus[2], instructions[i], result);
@@ -114,9 +122,12 @@ public class ScoreBoard {
                     }
                 }
             }
+            //判断每一条指令是否能够读操作数
             for (i = 0; i < instructions.length; i++){
                 if ("LD".equals(instructions[i].getOp())){
+                    //判断指令是否已经流出并且还未读操作数
                     if (instructions[i].getIssue()!=cycle&&instructions[i].getIssue()!=0&&instructions[i].getRead() == 0) {
+                        //判断源操作数的可用性，避免RAW冲突
                         if (fus[0].getRj() && fus[0].getRk()) {
                             readOprand(fus[0]);
                             instructions[i].setRead(cycle);
@@ -127,6 +138,7 @@ public class ScoreBoard {
                         if (fus[1].getRj() && fus[1].getRk()) {
                             readOprand(fus[1]);
                             instructions[i].setRead(cycle);
+                            //对于需要不同执行周期的指令，保存需要执行的周期
                             instructions[i].setExeCycle(cycle + fus[1].getTime());
                         }
                     }
@@ -151,12 +163,14 @@ public class ScoreBoard {
             for (i = 0; i < instructions.length; i++){
                 if ("LD".equals(instructions[i].getOp())) {
                     if (instructions[i].getRead()!=cycle&&instructions[i].getRead() != 0 && instructions[i].getExe() == 0) {
+                        //在执行前期改写其Rj和Rk的值
                         execute(fus[0]);
                         instructions[i].setExe(cycle);
                     }
                 } else if ("ADDD".equals(instructions[i].getOp())||"SUBD".equals(instructions[i].getOp())) {
                     if (instructions[i].getRead()!=cycle&&instructions[i].getRead() != 0 && instructions[i].getExe() == 0) {
                         execute(fus[1]);
+                        //判断其是否已经执行完毕
                         if (cycle == instructions[i].getExeCycle()) {
                             instructions[i].setExe(cycle);
                         }
@@ -177,10 +191,12 @@ public class ScoreBoard {
                     }
                 }
             }
+            //判断指令是否能够写结果
             for(i = 0; i < instructions.length; i++){
                 if ("LD".equals(instructions[i].getOp())) {
                     if(instructions[i].getExe()!=cycle&&instructions[i].getExe()!=0&&instructions[i].getWriteback() == 0) {
                         boolean flag = true;
+                        //判断是否有正在执行的指令需要读当前指令的目的寄存器的值
                         for (FU fu : fus) {
                             if (fus[0].getFi().equals(fu.getFj()) && fu.getRj()) {
                                 flag = false;
@@ -189,6 +205,7 @@ public class ScoreBoard {
                                 flag = false;
                             }
                         }
+                        //若没有，则不存在WAR冲突，进行写结果操作，并记录该指令已完成执行
                         if (flag) {
                             writeback(fus, fus[0], result);
                             instructions[i].setWriteback(cycle);
@@ -249,9 +266,11 @@ public class ScoreBoard {
                     }
                 }
             }
+            //每一个周期结束画出记分牌的三个表
             draw(cycle,instructions,fus,result,jf);
         }
     }
+    //流出阶段执行的操作，修改表中指令状态、功能部件状态以及寄存器result的值
     public void issue(FU fu,Instruction instruction,Map<String, String> result){
         fu.setBusy(true);
         fu.setOp(instruction.getOp());
@@ -269,19 +288,24 @@ public class ScoreBoard {
                 fu.setRj(true);
             }
         }
+        //对LD指令特殊判断，此代码中将源寄存器设置为Fk，Fj不存在，其Rj仍满足条件
         else{
             fu.setRj(true);
         }
     }
+    //读操作数阶段
     public void readOprand(FU fu){
         fu.setQj(null);
         fu.setQk(null);
     }
+    //执行阶段修改Rj、Rk值
     public void execute(FU fu){
         fu.setRj(false);
         fu.setRk(false);
     }
+    //写结果阶段
     public void writeback(FU[] fus,FU fu,Map<String, String> result){
+        //将其他指令的源寄存器为该指令的目的寄存器的Rj、Rk值改为就绪
         for(FU f:fus) {
             if (fu.getName().equals(f.getQj())) {
                 f.setRj(true);
@@ -302,6 +326,7 @@ public class ScoreBoard {
         fu.setRk(false);
     }
     public void draw(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result,JFrame jf) {
+        //控制台输出代码
 //        System.out.println("Cycle" + cycle);
 //        System.out.println("指令状态表");
 //        List<Cell> header1 = new ArrayList<Cell>(){{
@@ -363,6 +388,7 @@ public class ScoreBoard {
 //        }
 //        body3.add(element);
 //        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header3).addRows(body3).build().print();
+        //GUI界面输出代码，在每一个周期对表格每一个空填空
         jf.setTitle("Cycle" + cycle);
         for (int i = 0; i < instructions.length; i++) {
             table1.setValueAt(String.valueOf(instructions[i].getIssue()), i, 1);
@@ -387,6 +413,7 @@ public class ScoreBoard {
             }
         }
         jf.setVisible(true);
+        //只有当按下按钮时才执行下一周期，否则等待
         synchronized (lock) {
             while (!clicked) {
                 try {
@@ -397,6 +424,7 @@ public class ScoreBoard {
             }
         }
     }
+    //表格初始化方法
         public JFrame TableInst (Instruction[]instructions)
         {
             jf.setSize(800, 800);

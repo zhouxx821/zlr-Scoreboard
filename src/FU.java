@@ -1,4 +1,5 @@
 public class FU {
+    //功能部件状态表的九个字段
     private boolean busy=false;
     private String op=null;
     private String Fi=null;
@@ -8,7 +9,9 @@ public class FU {
     private String Qk=null;
     private boolean Rj=false;
     private boolean Rk=false;
+    //功能部件的名字
     private String name;
+    //操作延迟周期
     private int time;
 
     public void setBusy(boolean busy) {
