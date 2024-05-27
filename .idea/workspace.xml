@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="731ad336-f755-44a9-a34f-72a28c3819b2" name="Changes" comment="Initial Commit">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FU.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FU.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Instruction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Instruction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ScoreBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ScoreBoard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -88,8 +85,8 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Text" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Text" />
+    <configuration name="Windows" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Windows" />
       <module name="Scoreboard" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -98,10 +95,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.ScoreBoard" />
+        <item itemvalue="Application.Windows" />
         <item itemvalue="Application.Test" />
         <item itemvalue="Application.TableDemo" />
         <item itemvalue="Application.TableDemo$ConsoleTable" />
-        <item itemvalue="Application.Text" />
       </list>
     </recent_temporary>
   </component>
@@ -115,8 +112,16 @@
       <updated>1716376857264</updated>
       <workItem from="1716376858899" duration="36877000" />
       <workItem from="1716560271499" duration="15510000" />
-      <workItem from="1716723041061" duration="1614000" />
+      <workItem from="1716723041061" duration="18165000" />
     </task>
+    <task id="LOCAL-00001" summary="Initial Commit">
+      <created>1716724848729</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1716724848729</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,6 +137,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial Commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial Commit" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

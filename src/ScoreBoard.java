@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.*;
 import java.util.List;
 
@@ -16,39 +18,26 @@ public class ScoreBoard {
     private JTable table1;
     private JTable table2;
     private JTable table3;
+    private Box box1;
+    private Box box2;
+    private Box box3;
     private JButton next = new JButton("Next");
     private boolean clicked = false;
     private static final Object lock = new Object();
+    private static final Object lock2 = new Object();
     private JFrame jf=new JFrame();
+    private int addTime;
+    private int multTime;
+    private int divTime;
+    private int number;
     public static void main(String[] args)
     {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("请分别输入各部件的延迟，加法部件延迟：");
-        int addTime=scanner.nextInt();
-        System.out.print("乘法部件延迟：");
-        int multTime=scanner.nextInt();
-        System.out.print("除法部件延迟：");
-        int divTime=scanner.nextInt();
-        // 获取输入的字符串数量
-        System.out.print("请输入指令的数量：");
-        int count = scanner.nextInt();
-        scanner.nextLine(); // 消耗换行符
-        // 创建一个字符串数组
-        Instruction[] instructions = new Instruction[count];
-        System.out.println("请输入指令：");
-        // 逐个获取输入的字符串
-        for (int i = 0; i < count; i++) {
-            String input = scanner.nextLine();
-            instructions[i]=new Instruction(input);
-            instructions[i].setInst(input);
-        }
-        // 关闭输入流
-        scanner.close();
-        new ScoreBoard().algorithm(instructions,addTime,multTime,divTime);
+        ScoreBoard scoreBoard=new ScoreBoard();
+        Instruction[] instructions=scoreBoard.TableInst();
+        scoreBoard.algorithm(instructions);
     }
     //记分牌算法具体实现
-    public void algorithm(Instruction[] instructions,int addTime,int multTime,int divTime){
-        jf=TableInst(instructions);
+    public void algorithm(Instruction[] instructions){
         //新建五个FunctionalUnit功能部件对象
         FU[] fus=new FU[5];
         fus[0]=new FU("Integer",0);
@@ -267,7 +256,7 @@ public class ScoreBoard {
                 }
             }
             //每一个周期结束画出记分牌的三个表
-            draw(cycle,instructions,fus,result,jf);
+            draw(cycle,instructions,fus,result);
         }
     }
     //流出阶段执行的操作，修改表中指令状态、功能部件状态以及寄存器result的值
@@ -325,7 +314,7 @@ public class ScoreBoard {
         fu.setRj(false);
         fu.setRk(false);
     }
-    public void draw(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result,JFrame jf) {
+    public void draw(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
         //控制台输出代码
 //        System.out.println("Cycle" + cycle);
 //        System.out.println("指令状态表");
@@ -389,7 +378,7 @@ public class ScoreBoard {
 //        body3.add(element);
 //        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header3).addRows(body3).build().print();
         //GUI界面输出代码，在每一个周期对表格每一个空填空
-        jf.setTitle("Cycle" + cycle);
+        jf.setTitle("Cycle"+cycle);
         for (int i = 0; i < instructions.length; i++) {
             table1.setValueAt(String.valueOf(instructions[i].getIssue()), i, 1);
             table1.setValueAt(String.valueOf(instructions[i].getRead()), i, 2);
@@ -425,15 +414,96 @@ public class ScoreBoard {
         }
     }
     //表格初始化方法
-        public JFrame TableInst (Instruction[]instructions)
+        public Instruction[] TableInst ()
         {
-            jf.setSize(800, 800);
-            jf.setLocationRelativeTo(null);
+            jf.setTitle("ScoreBoard");
+            jf.setSize(1600, 800);
             jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            jf.setLayout(new GridLayout(4, 1,20,20));
+            jf.setLocationRelativeTo(null);
+            jf.setLayout(new GridLayout(3, 1,20,20));
+            JLabel addLabel = new JLabel("加法部件延迟:");
+            addLabel.setFont(new Font("宋体", Font.BOLD, 18));
+            JTextField add=new JTextField();
+            add.setMaximumSize(new Dimension(100, 50));
+            JLabel multLabel = new JLabel("乘法部件延迟:");
+            multLabel.setFont(new Font("宋体", Font.BOLD, 18));
+            JTextField mult=new JTextField();
+            mult.setMaximumSize(new Dimension(100, 50));
+            JLabel divLabel = new JLabel("除法部件延迟:");
+            divLabel.setFont(new Font("宋体", Font.BOLD, 18));
+            JTextField div=new JTextField();
+            div.setMaximumSize(new Dimension(100, 50));
+            JLabel numberLabel = new JLabel("指令数:");
+            numberLabel.setFont(new Font("宋体", Font.BOLD, 18));
+            JTextField count = new JTextField();
+            count.setMaximumSize(new Dimension(100, 50));
+            JButton countButton = new JButton("确认");
+            countButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    addTime = Integer.parseInt(add.getText());
+                    System.out.println("用户输入的值为：" + addTime);
+                    multTime = Integer.parseInt(mult.getText());
+                    System.out.println("用户输入的值为：" + multTime);
+                    divTime = Integer.parseInt(div.getText());
+                    System.out.println("用户输入的值为：" + divTime);
+                    number = Integer.parseInt(count.getText());
+                    System.out.println("用户输入的值为：" +number );
+                }
+            });
+            box1 = Box.createHorizontalBox();
+            box1.add(addLabel);
+            box1.add(add);
+            box1.add(multLabel);
+            box1.add(mult);
+            box1.add(divLabel);
+            box1.add(div);
+            box1.add(numberLabel);
+            box1.add(count);
+            box1.add(countButton);
+            jf.add(box1);
+            jf.setVisible(true);
+            while(number==0){
+
+            }
+            Instruction[] instructions = new Instruction[number];
+            JLabel textLabel = new JLabel("输入指令:");
+            textLabel.setFont(new Font("宋体", Font.BOLD, 18));
+            JTextArea textArea = new JTextArea(number, 20);
+            textArea.setMaximumSize(new Dimension(800,200));
+            JButton okButton = new JButton("确认");
+            okButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String[] lines = textArea.getText().split("\n"); // 按换行符分隔文本
+                    System.out.println(lines[0]);
+                    System.out.println(instructions.length);
+                    for (int i=0;i<lines.length;i++) {
+                        Instruction inst=new Instruction(lines[i]);
+                        instructions[i]=inst;
+                        instructions[i].setInst(lines[i]);
+                    }
+                    synchronized (lock2) {
+                        lock2.notify();
+                    }
+                }
+            });
+            box2=Box.createHorizontalBox();
+            box2.add(textLabel);
+            box2.add(textArea);
+            box2.add(okButton);
+            jf.add(box2);
+            jf.setVisible(true);
+            synchronized (lock2) {
+                    try {
+                        lock2.wait();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+            }
             String[][] datas1 = new String[instructions.length][5];
             for (int i = 0; i < instructions.length; i++) {
-                datas1[i][0] = instructions[i].getInst();
+                datas1[i][0]=instructions[i].getInst();
                 for (int j = 1; j < 5; j++) {
                     datas1[i][j] = " "; // 使用空格填充
                 }
@@ -472,10 +542,87 @@ public class ScoreBoard {
                     }
                 }
             });
-            jf.add(new JScrollPane(table1));
-            jf.add(new JScrollPane(table2));
-            jf.add(new JScrollPane(table3));
-            jf.add(next);
-            return jf;
+            box3 = Box.createHorizontalBox();
+            box3.add(new JScrollPane(table1));
+            box3.add(new JScrollPane(table2));
+            box3.add(new JScrollPane(table3));
+            box3.add(next);
+            jf.add(box3);
+            jf.setVisible(true);
+            return instructions;
         }
+//        public Instruction[] init(){
+//            JFrame jf2=new JFrame();
+//            jf2.setLayout(new GridLayout(3, 2,20,20));
+//            JTextField add=new JTextField("加法部件延迟");
+//            JButton addButton = new JButton("确认");
+//            addButton.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    // 获取文本框中的值
+//                    addTime = Integer.parseInt(add.getText());
+//                    System.out.println("用户输入的值为：" + addTime);
+//                }
+//            });
+//            JTextField mult=new JTextField("乘法部件延迟");
+//            JButton multButton = new JButton("确认");
+//            multButton.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    // 获取文本框中的值
+//                    multTime = Integer.parseInt(mult.getText());
+//                    System.out.println("用户输入的值为：" + multTime);
+//                }
+//            });
+//            JTextField div=new JTextField("除法部件延迟");
+//            JButton divButton = new JButton("确认");
+//            divButton.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    // 获取文本框中的值
+//                    divTime = Integer.parseInt(div.getText());
+//                    System.out.println("用户输入的值为：" + divTime);
+//                }
+//            });
+//            JTextField count = (new JTextField("请输入指令数"));
+//            JButton countButton = new JButton("确认");
+//            countButton.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    // 获取文本框中的值
+//                    number = Integer.parseInt(count.getText());
+//                    System.out.println("用户输入的值为：" +number );
+//                }
+//            });
+//            final Instruction[][] instructions = new Instruction[1][1];
+//            JTextArea textArea = new JTextArea(number, 20);
+//            textArea.setText("在这里输入指令...");
+//            JButton okButton = new JButton("确认");
+//            okButton.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    String[] lines = textArea.getText().split("\n"); // 按换行符分隔文本
+//                    System.out.println(lines[0]);
+//                    for (int i=0;i<lines.length;i++) {
+//                        instructions[0] =new Instruction[number];
+//                        instructions[0][i]=new Instruction(lines[i]);
+//                        instructions[0][i].setInst(lines[i]);
+//                    }
+//                }
+//            });
+//            jf2.add(add);
+//            jf2.add(addButton);
+//            jf2.add(mult);
+//            jf2.add(multButton);
+//            jf2.add(div);
+//            jf2.add(divButton);
+//            jf2.add(count);
+//            jf2.add(countButton);
+//            jf2.add(textArea);
+//            jf2.add(okButton);
+//            jf2.setSize(800, 800);
+//            jf2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//            jf2.setVisible(true);
+//            return instructions[0];
+//        }
     }
