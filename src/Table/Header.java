@@ -1,18 +1,10 @@
 package Table;
 
-import Table.Cell;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Create by IntelliJ IDEA
- * table header
- * @author chenlei
- * @dateTime 2018/12/11 14:02
- * @description Table.Header
- */
+
 public class Header {
 
     public List<Cell> cells;

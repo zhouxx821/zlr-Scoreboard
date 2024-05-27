@@ -2,14 +2,7 @@ package Table;
 
 import java.nio.charset.Charset;
 
-/**
- * Created by IntelliJ IDEA
- *
- * @author chenlei
- * @date 2019/4/16
- * @time 21:04
- * @desc Table.StringPadUtil
- */
+
 public class StringPadUtil {
 
     public static String leftPad(String str, int size, char c) {

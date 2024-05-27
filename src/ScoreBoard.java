@@ -1,13 +1,10 @@
 
 
 import Table.Cell;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.util.*;
 import java.util.List;
 
@@ -33,11 +30,16 @@ public class ScoreBoard {
     public static void main(String[] args)
     {
         ScoreBoard scoreBoard=new ScoreBoard();
-        Instruction[] instructions=scoreBoard.TableInst();
-        scoreBoard.algorithm(instructions);
+        if("ConsolePrint".equals(args[0])){
+            Instruction[] instructions= scoreBoard.init2();
+            scoreBoard.algorithm(instructions,args[0]);
+        } else if ("GUIPrint".equals(args[0])) {
+            Instruction[] instructions=scoreBoard.init1();
+            scoreBoard.algorithm(instructions,args[0]);
+        }
     }
     //记分牌算法具体实现
-    public void algorithm(Instruction[] instructions){
+    public void algorithm(Instruction[] instructions,String outway){
         //新建五个FunctionalUnit功能部件对象
         FU[] fus=new FU[5];
         fus[0]=new FU("Integer",0);
@@ -256,7 +258,12 @@ public class ScoreBoard {
                 }
             }
             //每一个周期结束画出记分牌的三个表
-            draw(cycle,instructions,fus,result);
+            if("GUIPrint".equals(outway)) {
+                draw1(cycle, instructions, fus, result);
+            }
+            else {
+                draw2(cycle,instructions,fus,result);
+            }
         }
     }
     //流出阶段执行的操作，修改表中指令状态、功能部件状态以及寄存器result的值
@@ -314,69 +321,7 @@ public class ScoreBoard {
         fu.setRj(false);
         fu.setRk(false);
     }
-    public void draw(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
-        //控制台输出代码
-//        System.out.println("Cycle" + cycle);
-//        System.out.println("指令状态表");
-//        List<Cell> header1 = new ArrayList<Cell>(){{
-//            add(new Cell("Instruction"));
-//            add(new Cell("Issue"));
-//            add(new Cell("ReadOprand"));
-//            add(new Cell("Execution"));
-//            add(new Cell("WriteBack"));
-//        }};
-//        List<List<Cell>> body1 = new ArrayList<>();
-//        for (Instruction instruction : instructions) {
-//            List<Cell> element = new ArrayList<>();
-//            element.add(new Cell(instruction.getInst()));
-//            element.add(new Cell(String.valueOf(instruction.getIssue())));
-//            element.add(new Cell(String.valueOf(instruction.getRead())));
-//            element.add(new Cell(String.valueOf(instruction.getExe())));
-//            element.add(new Cell(String.valueOf(instruction.getWriteback())));
-//            body1.add(element);
-//        }
-//        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header1).addRows(body1).build().print();
-//        System.out.println("功能部件状态表");
-//        List<Cell> header2 = new ArrayList<Cell>(){{
-//            add(new Cell("Name"));
-//            add(new Cell("Busy"));
-//            add(new Cell("Op"));
-//            add(new Cell("Fi"));
-//            add(new Cell("Fj"));
-//            add(new Cell("Fk"));
-//            add(new Cell("Qj"));
-//            add(new Cell("Qk"));
-//            add(new Cell("Rj"));
-//            add(new Cell("Rk"));
-//        }};
-//        List<List<Cell>> body2 = new ArrayList<>();
-//        for(int i=0;i<5;i++){
-//            List<Cell> element=new ArrayList<>();
-//            element.add(new Cell(fus[i].getName()));
-//            element.add(new Cell(String.valueOf(fus[i].getbusy())));
-//            element.add(new Cell(fus[i].getOp()));
-//            element.add(new Cell(fus[i].getFi()));
-//            element.add(new Cell(fus[i].getFj()));
-//            element.add(new Cell(fus[i].getFk()));
-//            element.add(new Cell(fus[i].getQj()));
-//            element.add(new Cell(fus[i].getQk()));
-//            element.add(new Cell(String.valueOf(fus[i].getRj())));
-//            element.add(new Cell(String.valueOf(fus[i].getRk())));
-//            body2.add(element);
-//        }
-//        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header2).addRows(body2).build().print();
-//        System.out.println("结果寄存器状态表");
-//        List<Cell> header3 = new ArrayList<>();
-//        for (int i = 0; i <= 30; i += 2) {
-//            header3.add(new Cell("F" + i));
-//        }
-//        List<List<Cell>> body3 = new ArrayList<>();
-//        List<Cell> element=new ArrayList<>();
-//        for (int i = 0; i <= 30; i += 2) {
-//            element.add(new Cell(result.get("F"+i)));
-//        }
-//        body3.add(element);
-//        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header3).addRows(body3).build().print();
+    public void draw1(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
         //GUI界面输出代码，在每一个周期对表格每一个空填空
         jf.setTitle("Cycle"+cycle);
         for (int i = 0; i < instructions.length; i++) {
@@ -413,8 +358,75 @@ public class ScoreBoard {
             }
         }
     }
+    public void draw2(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
+        //控制台输出代码
+        System.out.println("Cycle" + cycle);
+        System.out.println("指令状态表");
+        List<Cell> header1 = new ArrayList<Cell>(){{
+            add(new Cell("Instruction"));
+            add(new Cell("Issue"));
+            add(new Cell("ReadOprand"));
+            add(new Cell("Execution"));
+            add(new Cell("WriteBack"));
+        }};
+        List<List<Cell>> body1 = new ArrayList<>();
+        for (Instruction instruction : instructions) {
+            List<Cell> element = new ArrayList<>();
+            element.add(new Cell(instruction.getInst()));
+            element.add(new Cell(String.valueOf(instruction.getIssue())));
+            element.add(new Cell(String.valueOf(instruction.getRead())));
+            element.add(new Cell(String.valueOf(instruction.getExe())));
+            element.add(new Cell(String.valueOf(instruction.getWriteback())));
+            body1.add(element);
+        }
+        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header1).addRows(body1).build().print();
+        System.out.println("功能部件状态表");
+        List<Cell> header2 = new ArrayList<Cell>(){{
+            add(new Cell("Name"));
+            add(new Cell("Busy"));
+            add(new Cell("Op"));
+            add(new Cell("Fi"));
+            add(new Cell("Fj"));
+            add(new Cell("Fk"));
+            add(new Cell("Qj"));
+            add(new Cell("Qk"));
+            add(new Cell("Rj"));
+            add(new Cell("Rk"));
+        }};
+        List<List<Cell>> body2 = new ArrayList<>();
+        for(int i=0;i<5;i++){
+            List<Cell> element=new ArrayList<>();
+            element.add(new Cell(fus[i].getName()));
+            element.add(new Cell(String.valueOf(fus[i].getbusy())));
+            element.add(new Cell(fus[i].getOp()));
+            element.add(new Cell(fus[i].getFi()));
+            element.add(new Cell(fus[i].getFj()));
+            element.add(new Cell(fus[i].getFk()));
+            element.add(new Cell(fus[i].getQj()));
+            element.add(new Cell(fus[i].getQk()));
+            element.add(new Cell(String.valueOf(fus[i].getRj())));
+            element.add(new Cell(String.valueOf(fus[i].getRk())));
+            body2.add(element);
+        }
+        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header2).addRows(body2).build().print();
+        System.out.println("结果寄存器状态表");
+        List<Cell> header3 = new ArrayList<>();
+        for (int i = 0; i <= 30; i += 2) {
+            header3.add(new Cell("F" + i));
+        }
+        List<List<Cell>> body3 = new ArrayList<>();
+        List<Cell> element=new ArrayList<>();
+        for (int i = 0; i <= 30; i += 2) {
+            element.add(new Cell(result.get("F"+i)));
+        }
+        body3.add(element);
+        new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header3).addRows(body3).build().print();
+        Scanner scanner=new Scanner(System.in);
+        System.out.println("按回车键继续");
+        scanner.nextLine();
+    }
     //表格初始化方法
-        public Instruction[] TableInst ()
+        public Instruction[] init1 ()
         {
             jf.setTitle("ScoreBoard");
             jf.setSize(1600, 800);
@@ -442,13 +454,9 @@ public class ScoreBoard {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     addTime = Integer.parseInt(add.getText());
-                    System.out.println("用户输入的值为：" + addTime);
                     multTime = Integer.parseInt(mult.getText());
-                    System.out.println("用户输入的值为：" + multTime);
                     divTime = Integer.parseInt(div.getText());
-                    System.out.println("用户输入的值为：" + divTime);
                     number = Integer.parseInt(count.getText());
-                    System.out.println("用户输入的值为：" +number );
                 }
             });
             box1 = Box.createHorizontalBox();
@@ -464,7 +472,6 @@ public class ScoreBoard {
             jf.add(box1);
             jf.setVisible(true);
             while(number==0){
-
             }
             Instruction[] instructions = new Instruction[number];
             JLabel textLabel = new JLabel("输入指令:");
@@ -476,8 +483,6 @@ public class ScoreBoard {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String[] lines = textArea.getText().split("\n"); // 按换行符分隔文本
-                    System.out.println(lines[0]);
-                    System.out.println(instructions.length);
                     for (int i=0;i<lines.length;i++) {
                         Instruction inst=new Instruction(lines[i]);
                         instructions[i]=inst;
@@ -551,78 +556,27 @@ public class ScoreBoard {
             jf.setVisible(true);
             return instructions;
         }
-//        public Instruction[] init(){
-//            JFrame jf2=new JFrame();
-//            jf2.setLayout(new GridLayout(3, 2,20,20));
-//            JTextField add=new JTextField("加法部件延迟");
-//            JButton addButton = new JButton("确认");
-//            addButton.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    // 获取文本框中的值
-//                    addTime = Integer.parseInt(add.getText());
-//                    System.out.println("用户输入的值为：" + addTime);
-//                }
-//            });
-//            JTextField mult=new JTextField("乘法部件延迟");
-//            JButton multButton = new JButton("确认");
-//            multButton.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    // 获取文本框中的值
-//                    multTime = Integer.parseInt(mult.getText());
-//                    System.out.println("用户输入的值为：" + multTime);
-//                }
-//            });
-//            JTextField div=new JTextField("除法部件延迟");
-//            JButton divButton = new JButton("确认");
-//            divButton.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    // 获取文本框中的值
-//                    divTime = Integer.parseInt(div.getText());
-//                    System.out.println("用户输入的值为：" + divTime);
-//                }
-//            });
-//            JTextField count = (new JTextField("请输入指令数"));
-//            JButton countButton = new JButton("确认");
-//            countButton.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    // 获取文本框中的值
-//                    number = Integer.parseInt(count.getText());
-//                    System.out.println("用户输入的值为：" +number );
-//                }
-//            });
-//            final Instruction[][] instructions = new Instruction[1][1];
-//            JTextArea textArea = new JTextArea(number, 20);
-//            textArea.setText("在这里输入指令...");
-//            JButton okButton = new JButton("确认");
-//            okButton.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    String[] lines = textArea.getText().split("\n"); // 按换行符分隔文本
-//                    System.out.println(lines[0]);
-//                    for (int i=0;i<lines.length;i++) {
-//                        instructions[0] =new Instruction[number];
-//                        instructions[0][i]=new Instruction(lines[i]);
-//                        instructions[0][i].setInst(lines[i]);
-//                    }
-//                }
-//            });
-//            jf2.add(add);
-//            jf2.add(addButton);
-//            jf2.add(mult);
-//            jf2.add(multButton);
-//            jf2.add(div);
-//            jf2.add(divButton);
-//            jf2.add(count);
-//            jf2.add(countButton);
-//            jf2.add(textArea);
-//            jf2.add(okButton);
-//            jf2.setSize(800, 800);
-//            jf2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//            jf2.setVisible(true);
-//            return instructions[0];
-//        }
+        public Instruction[] init2(){
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("请分别输入各部件的延迟，加法部件延迟：");
+            addTime=scanner.nextInt();
+            System.out.print("乘法部件延迟：");
+            multTime=scanner.nextInt();
+            System.out.print("除法部件延迟：");
+            divTime=scanner.nextInt();
+            // 获取输入的字符串数量
+            System.out.print("请输入指令的数量：");
+            number = scanner.nextInt();
+            scanner.nextLine(); // 消耗换行符
+            // 创建一个字符串数组
+            Instruction[] instructions = new Instruction[number];
+            System.out.println("请输入指令：");
+            // 逐个获取输入的字符串
+            for (int i = 0; i < number; i++) {
+                String input = scanner.nextLine();
+                instructions[i]=new Instruction(input);
+                instructions[i].setInst(input);
+            }
+            return instructions;
+         }
     }

@@ -2,14 +2,8 @@ package Table;
 
 import java.util.ArrayList;
 import java.util.List;
+import Table.Cell;
 
-/**
- * Create by IntelliJ IDEA
- * table body
- * @author chenlei
- * @dateTime 2018/12/11 14:04
- * @description Table.Body
- */
 public class Body {
 
     public List<List<Cell>> rows;

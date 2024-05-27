@@ -1,14 +1,6 @@
 package Table;
 
-import Table.Cell;
 
-/**
- * Create by IntelliJ IDEA
- * do what when cell is null or cell value is null
- * @author chenlei
- * @dateTime 2018/12/14 11:44
- * @description Table.NullPolicy
- */
 public enum NullPolicy {
 
     THROW {

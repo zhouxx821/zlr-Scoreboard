@@ -1,14 +1,5 @@
 package Table;
 
-import Table.Align;
-
-/**
- * Create by IntelliJ IDEA
- * table cell
- * @author chenlei
- * @dateTime 2018/12/11 9:52
- * @description Table.Cell
- */
 public class Cell {
 
     private Align align;

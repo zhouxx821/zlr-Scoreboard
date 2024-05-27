@@ -1,7 +1,6 @@
 package Table;
 
 import com.sun.deploy.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class ConsoleTable {
 
     private ConsoleTable(){}
 
-    void print() {
+    public void print() {
         System.out.println(getContent());
     }
 

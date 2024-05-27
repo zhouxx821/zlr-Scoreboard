@@ -1,19 +1,10 @@
 package Table;
 
-import Table.Align;
-import Table.Cell;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Create by IntelliJ IDEA
- * tools for print lines
- * @author chenlei
- * @dateTime 2018/12/14 9:40
- * @description Table.PrintUtil
- */
+
 public class PrintUtil {
 
     /**
