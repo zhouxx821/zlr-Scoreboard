@@ -1,7 +1,8 @@
 package Table;
 
-import com.sun.deploy.util.StringUtils;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -36,9 +37,19 @@ public class ConsoleTable {
         return lines;
     }
 
-    @Override
     public String toString() {
-        return StringUtils.join(getLines(), lineSep);
+        return join(getLines(), lineSep);
+    }
+    public static String join(Collection var0, String var1) {
+        StringBuffer var2 = new StringBuffer();
+
+        for(Iterator var3 = var0.iterator(); var3.hasNext(); var2.append((String)var3.next())) {
+            if (var2.length() != 0) {
+                var2.append(var1);
+            }
+        }
+
+        return var2.toString();
     }
 
     public static class ConsoleTableBuilder {
@@ -128,75 +139,5 @@ public class ConsoleTable {
             }
             return consoleTable;
         }
-    }
-
-    public static void main(String[] args){
-        List<Cell> header = new ArrayList<Cell>(){{
-            add(new Cell("name"));
-            add(new Cell("email"));
-            add(new Cell("tel"));
-        }};
-        List<List<Cell>> body = new ArrayList<List<Cell>>(){{
-            add(new ArrayList<Cell>(){{
-                add(new Cell("kat"));
-                add(new Cell(Align.CENTER,"kat@gimal.com"));
-                add(new Cell(Align.RIGHT,"54321"));
-            }});
-            add(new ArrayList<Cell>(){{
-                add(new Cell("ashe"));
-                add(new Cell("ashe_111@hotmail.com"));
-                add(new Cell("9876543中文测试210"));
-            }});
-            add(new ArrayList<Cell>(){{
-                add(null);
-                add(new Cell(null));
-                add(new Cell(Align.LEFT,"11"));
-            }});
-        }};
-        //default
-        new ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).build().print();
-
-        //中文
-        header = new ArrayList<Cell>(){{
-            add(new Cell("姓名name"));
-            add(new Cell("电子邮箱email"));
-            add(new Cell("电话号码tel"));
-        }};
-        body = new ArrayList<List<Cell>>(){{
-            add(new ArrayList<Cell>(){{
-                add(new Cell("凯特kat"));
-                add(new Cell(Align.CENTER,"kat@gimal.com"));
-                add(new Cell(Align.RIGHT,"54321"));
-            }});
-            add(new ArrayList<Cell>(){{
-                add(new Cell("艾希ashe"));
-                add(new Cell("ashe_111@hotmail.com"));
-                add(new Cell("9876543210"));
-            }});
-            add(new ArrayList<Cell>(){{
-                add(new Cell("這是一串很長的繁體中文"));
-                add(new Cell("これは長い日本語です"));
-                add(new Cell(Align.LEFT,"11这是一串很长的中文"));
-            }});
-        }};
-        new ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).build().print();
-
-        //no header
-        //new Table.ConsoleTable.ConsoleTableBuilder().addRows(body).build().print();
-
-        //restrict
-        //header.add(new Table.Cell("not restrict"));
-        //new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).restrict(false).build().print();
-        //new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).restrict(true).build().print();
-
-        //"null"
-        //new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).nullPolicy(Table.NullPolicy.NULL_STRING).build().print();
-        //new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).nullPolicy(Table.NullPolicy.THROW).build().print();
-
-        //line sep
-        //new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).lineSep("\n\n").build().print();
-
-        //vertical sep & horizontal sep & join sep
-        //new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header).addRows(body).verticalSep("*").horizontalSep("*").joinSep("*").build().print();
     }
 }

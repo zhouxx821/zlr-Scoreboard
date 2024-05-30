@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * @author ZhouLirong
+ * Table类引用自https://github.com/clyoudu/clyoudu-util/tree/master/src/main/java/github/clyoudu/consoletable
  */
 public class ScoreBoard {
     private JTable table1;
@@ -22,6 +23,7 @@ public class ScoreBoard {
     private boolean clicked = false;
     private static final Object lock = new Object();
     private static final Object lock2 = new Object();
+    private static final Object lock3 = new Object();
     private JFrame jf=new JFrame();
     private int addTime;
     private int multTime;
@@ -55,7 +57,7 @@ public class ScoreBoard {
         for(int cycle=1;;cycle++) {
             clicked=false;
             int i;
-            //如果所有的指令均执行完毕，则退出循环
+            //遍历指令队列
             for (i = 0; i < instructions.length; i++) {
                 if (!instructions[i].getFinish()) {
                     break;
@@ -64,12 +66,12 @@ public class ScoreBoard {
             if (i >= instructions.length) {
                 break;
             }
-            //判断每一条指令是否能够流出，若某条指令流出，则退出循环
+            //判断每一条指令是否能够流出，若某条指令流出，从指令队列中删除
             for (i = 0; i < instructions.length; i++) {
                 if ("LD".equals(instructions[i].getOp())) {
-                    //判断指令是否已经流出
+                    ////判断指令是否已经流出
                     if (instructions[i].getIssue() == 0) {
-                        //判断指令所需功能部件是否Busy以及是否存在WAW冲突
+                        ////判断指令所需功能部件是否Busy以及是否存在WAW冲突
                         if (!fus[0].getbusy() && result.get(instructions[i].getFi()) == null) {
                             issue(fus[0], instructions[i], result);
                             instructions[i].setIssue(cycle);
@@ -90,18 +92,26 @@ public class ScoreBoard {
                     }
                 } else if ("MULTD".equals(instructions[i].getOp())) {
                     if (instructions[i].getIssue() == 0) {
-                        //对于乘法指令，有mult1和mult2两个功能部件，故先判断mult1，若不满足条件则判断mult2
-                        if (!fus[2].getbusy() && result.get(instructions[i].getFi()) == null) {
-                            instructions[i].setFu(fus[2]);
-                            issue(fus[2], instructions[i], result);
-                            instructions[i].setIssue(cycle);
-                            break;
-                        } else if (!fus[3].getbusy() && result.get(instructions[i].getFi()) == null) {
-                            instructions[i].setFu(fus[3]);
-                            issue(fus[3], instructions[i], result);
-                            instructions[i].setIssue(cycle);
-                            break;
+                        ////对于乘法指令，有mult1和mult2两个功能部件，故先判断mult1，若不满足条件则判断mult2
+                        for(int j=2;j<4;j++){
+                            if(!fus[j].getbusy()&&result.get(instructions[i].getFi())==null){
+                                instructions[i].setFu(fus[j]);
+                                issue(fus[j], instructions[i], result);
+                                instructions[i].setIssue(cycle);
+                                break;
+                            }
                         }
+//                        if (!fus[2].getbusy() && result.get(instructions[i].getFi()) == null) {
+//                            instructions[i].setFu(fus[2]);
+//                            issue(fus[2], instructions[i], result);
+//                            instructions[i].setIssue(cycle);
+//                            break;
+//                        } else if (!fus[3].getbusy() && result.get(instructions[i].getFi()) == null) {
+//                            instructions[i].setFu(fus[3]);
+//                            issue(fus[3], instructions[i], result);
+//                            instructions[i].setIssue(cycle);
+//                            break;
+//                        }
                     }
                 } else if ("DIVD".equals(instructions[i].getOp())) {
                     if (instructions[i].getIssue() == 0) {
@@ -116,9 +126,9 @@ public class ScoreBoard {
             //判断每一条指令是否能够读操作数
             for (i = 0; i < instructions.length; i++){
                 if ("LD".equals(instructions[i].getOp())){
-                    //判断指令是否已经流出并且还未读操作数
+                    ////判断指令是否已经流出并且还未读操作数
                     if (instructions[i].getIssue()!=cycle&&instructions[i].getIssue()!=0&&instructions[i].getRead() == 0) {
-                        //判断源操作数的可用性，避免RAW冲突
+                        ////判断源操作数的可用性，避免RAW冲突
                         if (fus[0].getRj() && fus[0].getRk()) {
                             readOprand(fus[0]);
                             instructions[i].setRead(cycle);
@@ -129,7 +139,7 @@ public class ScoreBoard {
                         if (fus[1].getRj() && fus[1].getRk()) {
                             readOprand(fus[1]);
                             instructions[i].setRead(cycle);
-                            //对于需要不同执行周期的指令，保存需要执行的周期
+                            ////对于需要不同执行周期的指令，保存需要执行的周期
                             instructions[i].setExeCycle(cycle + fus[1].getTime());
                         }
                     }
@@ -187,7 +197,7 @@ public class ScoreBoard {
                 if ("LD".equals(instructions[i].getOp())) {
                     if(instructions[i].getExe()!=cycle&&instructions[i].getExe()!=0&&instructions[i].getWriteback() == 0) {
                         boolean flag = true;
-                        //判断是否有正在执行的指令需要读当前指令的目的寄存器的值
+                        ////判断是否有正在执行的指令需要读当前指令的目的寄存器的值
                         for (FU fu : fus) {
                             if (fus[0].getFi().equals(fu.getFj()) && fu.getRj()) {
                                 flag = false;
@@ -196,7 +206,7 @@ public class ScoreBoard {
                                 flag = false;
                             }
                         }
-                        //若没有，则不存在WAR冲突，进行写结果操作，并记录该指令已完成执行
+                        ////若没有，则不存在WAR冲突，进行写结果操作，并记录该指令已完成执行
                         if (flag) {
                             writeback(fus, fus[0], result);
                             instructions[i].setWriteback(cycle);
@@ -301,12 +311,14 @@ public class ScoreBoard {
     }
     //写结果阶段
     public void writeback(FU[] fus,FU fu,Map<String, String> result){
-        //将其他指令的源寄存器为该指令的目的寄存器的Rj、Rk值改为就绪
+        ////将其他指令的源寄存器为该指令的目的寄存器的Rj、Rk值改为就绪
         for(FU f:fus) {
             if (fu.getName().equals(f.getQj())) {
+                f.setQj("");
                 f.setRj(true);
             }
             if (fu.getName().equals(f.getQk())) {
+                f.setQj("");
                 f.setRk(true);
             }
         }
@@ -321,8 +333,8 @@ public class ScoreBoard {
         fu.setRj(false);
         fu.setRk(false);
     }
+    //GUI界面输出
     public void draw1(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
-        //GUI界面输出代码，在每一个周期对表格每一个空填空
         jf.setTitle("Cycle"+cycle);
         for (int i = 0; i < instructions.length; i++) {
             table1.setValueAt(String.valueOf(instructions[i].getIssue()), i, 1);
@@ -358,8 +370,8 @@ public class ScoreBoard {
             }
         }
     }
+    //控制台输出
     public void draw2(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
-        //控制台输出代码
         System.out.println("Cycle" + cycle);
         System.out.println("指令状态表");
         List<Cell> header1 = new ArrayList<Cell>(){{
@@ -425,7 +437,7 @@ public class ScoreBoard {
         System.out.println("按回车键继续");
         scanner.nextLine();
     }
-    //表格初始化方法
+    //GUI初始化
         public Instruction[] init1 ()
         {
             jf.setTitle("ScoreBoard");
@@ -457,6 +469,9 @@ public class ScoreBoard {
                     multTime = Integer.parseInt(mult.getText());
                     divTime = Integer.parseInt(div.getText());
                     number = Integer.parseInt(count.getText());
+                    synchronized (lock3) {
+                        lock3.notify();
+                    }
                 }
             });
             box1 = Box.createHorizontalBox();
@@ -471,7 +486,12 @@ public class ScoreBoard {
             box1.add(countButton);
             jf.add(box1);
             jf.setVisible(true);
-            while(number==0){
+            synchronized (lock3) {
+                try {
+                    lock3.wait();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
             Instruction[] instructions = new Instruction[number];
             JLabel textLabel = new JLabel("输入指令:");
@@ -556,6 +576,7 @@ public class ScoreBoard {
             jf.setVisible(true);
             return instructions;
         }
+        //控制台输出初始化
         public Instruction[] init2(){
             Scanner scanner = new Scanner(System.in);
             System.out.print("请分别输入各部件的延迟，加法部件延迟：");
