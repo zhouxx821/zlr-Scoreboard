@@ -19,7 +19,7 @@ public class ScoreBoard {
     private Box box1;
     private Box box2;
     private Box box3;
-    private JButton next = new JButton("Next");
+    private JButton next = new JButton("下一个");
     private boolean clicked = false;
     private static final Object lock = new Object();
     private static final Object lock2 = new Object();
@@ -29,6 +29,7 @@ public class ScoreBoard {
     private int multTime;
     private int divTime;
     private int number;
+    private Instruction[] instructions;
     public static void main(String[] args)
     {
         ScoreBoard scoreBoard=new ScoreBoard();
@@ -101,6 +102,7 @@ public class ScoreBoard {
                                 break;
                             }
                         }
+                        break;
 //                        if (!fus[2].getbusy() && result.get(instructions[i].getFi()) == null) {
 //                            instructions[i].setFu(fus[2]);
 //                            issue(fus[2], instructions[i], result);
@@ -335,12 +337,12 @@ public class ScoreBoard {
     }
     //GUI界面输出
     public void draw1(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
-        jf.setTitle("Cycle"+cycle);
+        jf.setTitle("Cycle "+cycle);
         for (int i = 0; i < instructions.length; i++) {
-            table1.setValueAt(String.valueOf(instructions[i].getIssue()), i, 1);
-            table1.setValueAt(String.valueOf(instructions[i].getRead()), i, 2);
-            table1.setValueAt(String.valueOf(instructions[i].getExe()), i, 3);
-            table1.setValueAt(String.valueOf(instructions[i].getWriteback()), i, 4);
+            table1.setValueAt(String.valueOf(instructions[i].getIssue()>0?instructions[i].getIssue():""), i, 1);
+            table1.setValueAt(String.valueOf(instructions[i].getRead()>0?instructions[i].getRead():""), i, 2);
+            table1.setValueAt(String.valueOf(instructions[i].getExe()>0?instructions[i].getExe():""), i, 3);
+            table1.setValueAt(String.valueOf(instructions[i].getWriteback()>0?instructions[i].getWriteback():""), i, 4);
         }
         for (int i = 0; i < 5; i++) {
             table2.setValueAt(String.valueOf(fus[i].getbusy()), i, 1);
@@ -372,7 +374,7 @@ public class ScoreBoard {
     }
     //控制台输出
     public void draw2(int cycle,Instruction[] instructions,FU[] fus,Map<String, String> result) {
-        System.out.println("Cycle" + cycle);
+        System.out.println("Cycle " + cycle);
         System.out.println("指令状态表");
         List<Cell> header1 = new ArrayList<Cell>(){{
             add(new Cell("Instruction"));
@@ -385,10 +387,10 @@ public class ScoreBoard {
         for (Instruction instruction : instructions) {
             List<Cell> element = new ArrayList<>();
             element.add(new Cell(instruction.getInst()));
-            element.add(new Cell(String.valueOf(instruction.getIssue())));
-            element.add(new Cell(String.valueOf(instruction.getRead())));
-            element.add(new Cell(String.valueOf(instruction.getExe())));
-            element.add(new Cell(String.valueOf(instruction.getWriteback())));
+            element.add(new Cell(instruction.getIssue()>0?String.valueOf(instruction.getIssue()):""));
+            element.add(new Cell(instruction.getRead()>0?String.valueOf(instruction.getRead()):""));
+            element.add(new Cell(instruction.getExe()>0?String.valueOf(instruction.getExe()):""));
+            element.add(new Cell(instruction.getWriteback()>0?String.valueOf(instruction.getWriteback()):""));
             body1.add(element);
         }
         new Table.ConsoleTable.ConsoleTableBuilder().addHeaders(header1).addRows(body1).build().print();
@@ -444,23 +446,49 @@ public class ScoreBoard {
             jf.setSize(1600, 800);
             jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             jf.setLocationRelativeTo(null);
-            jf.setLayout(new GridLayout(3, 1,20,20));
-            JLabel addLabel = new JLabel("加法部件延迟:");
+            jf.setLayout(new GridLayout(1, 2,20,20));
+            JLabel addLabel = new JLabel("加法部件延迟");
             addLabel.setFont(new Font("宋体", Font.BOLD, 18));
             JTextField add=new JTextField();
             add.setMaximumSize(new Dimension(100, 50));
-            JLabel multLabel = new JLabel("乘法部件延迟:");
+            Box test1=Box.createHorizontalBox();
+            test1.setAlignmentX(Component.LEFT_ALIGNMENT);
+            test1.add(addLabel);
+            test1.add(add);
+            JLabel multLabel = new JLabel("乘法部件延迟");
             multLabel.setFont(new Font("宋体", Font.BOLD, 18));
             JTextField mult=new JTextField();
             mult.setMaximumSize(new Dimension(100, 50));
-            JLabel divLabel = new JLabel("除法部件延迟:");
+            Box test2=Box.createHorizontalBox();
+            test2.setAlignmentX(Component.LEFT_ALIGNMENT);
+            test2.add(multLabel);
+            test2.add(mult);
+            JLabel divLabel = new JLabel("除法部件延迟");
             divLabel.setFont(new Font("宋体", Font.BOLD, 18));
             JTextField div=new JTextField();
             div.setMaximumSize(new Dimension(100, 50));
-            JLabel numberLabel = new JLabel("指令数:");
+            Box test3=Box.createHorizontalBox();
+            test3.setAlignmentX(Component.LEFT_ALIGNMENT);
+            test3.add(divLabel);
+            test3.add(div);
+            JLabel numberLabel = new JLabel("指令数");
             numberLabel.setFont(new Font("宋体", Font.BOLD, 18));
             JTextField count = new JTextField();
             count.setMaximumSize(new Dimension(100, 50));
+            Box test4=Box.createHorizontalBox();
+            test4.setAlignmentX(Component.LEFT_ALIGNMENT);
+            test4.add(numberLabel);
+            test4.add(count);
+            JLabel textLabel = new JLabel("输入指令");
+            textLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            textLabel.setFont(new Font("宋体", Font.BOLD, 18));
+            JTextArea textArea = new JTextArea(number, 20);
+            textArea.setMaximumSize(new Dimension(800,200));
+            textArea.setAlignmentX(Component.LEFT_ALIGNMENT);
+            Box test5=Box.createVerticalBox();
+            test5.setAlignmentX(Component.LEFT_ALIGNMENT);
+            test5.add(textLabel);
+            test5.add(textArea);
             JButton countButton = new JButton("确认");
             countButton.addActionListener(new ActionListener() {
                 @Override
@@ -469,20 +497,30 @@ public class ScoreBoard {
                     multTime = Integer.parseInt(mult.getText());
                     divTime = Integer.parseInt(div.getText());
                     number = Integer.parseInt(count.getText());
+                    String[] lines = textArea.getText().split("\n"); // 按换行符分隔文本
+                    instructions = new Instruction[number];
+                    for (int i=0;i<lines.length;i++) {
+                        Instruction inst=new Instruction(lines[i]);
+                        instructions[i]=inst;
+                        instructions[i].setInst(lines[i]);
+                    }
                     synchronized (lock3) {
                         lock3.notify();
                     }
                 }
             });
-            box1 = Box.createHorizontalBox();
-            box1.add(addLabel);
-            box1.add(add);
-            box1.add(multLabel);
-            box1.add(mult);
-            box1.add(divLabel);
-            box1.add(div);
-            box1.add(numberLabel);
-            box1.add(count);
+            box1 = Box.createVerticalBox();
+            box1.setAlignmentX(0);
+            box1.add(test1);
+            box1.add(Box.createVerticalStrut(60));
+            box1.add(test2);
+            box1.add(Box.createVerticalStrut(60));
+            box1.add(test3);
+            box1.add(Box.createVerticalStrut(60));
+            box1.add(test4);
+            box1.add(Box.createVerticalStrut(60));
+            box1.add(test5);
+            box1.add(Box.createVerticalStrut(30));
             box1.add(countButton);
             jf.add(box1);
             jf.setVisible(true);
@@ -493,39 +531,39 @@ public class ScoreBoard {
                     ex.printStackTrace();
                 }
             }
-            Instruction[] instructions = new Instruction[number];
-            JLabel textLabel = new JLabel("输入指令:");
-            textLabel.setFont(new Font("宋体", Font.BOLD, 18));
-            JTextArea textArea = new JTextArea(number, 20);
-            textArea.setMaximumSize(new Dimension(800,200));
-            JButton okButton = new JButton("确认");
-            okButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String[] lines = textArea.getText().split("\n"); // 按换行符分隔文本
-                    for (int i=0;i<lines.length;i++) {
-                        Instruction inst=new Instruction(lines[i]);
-                        instructions[i]=inst;
-                        instructions[i].setInst(lines[i]);
-                    }
-                    synchronized (lock2) {
-                        lock2.notify();
-                    }
-                }
-            });
-            box2=Box.createHorizontalBox();
-            box2.add(textLabel);
-            box2.add(textArea);
-            box2.add(okButton);
-            jf.add(box2);
-            jf.setVisible(true);
-            synchronized (lock2) {
-                    try {
-                        lock2.wait();
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-            }
+//            Instruction[] instructions = new Instruction[number];
+//            JLabel textLabel = new JLabel("输入指令:");
+//            textLabel.setFont(new Font("宋体", Font.BOLD, 18));
+//            JTextArea textArea = new JTextArea(number, 20);
+//            textArea.setMaximumSize(new Dimension(800,200));
+//            JButton okButton = new JButton("确认");
+//            okButton.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    String[] lines = textArea.getText().split("\n"); // 按换行符分隔文本
+//                    for (int i=0;i<lines.length;i++) {
+//                        Instruction inst=new Instruction(lines[i]);
+//                        instructions[i]=inst;
+//                        instructions[i].setInst(lines[i]);
+//                    }
+//                    synchronized (lock2) {
+//                        lock2.notify();
+//                    }
+//                }
+//            });
+//            box2=Box.createHorizontalBox();
+//            box2.add(textLabel);
+//            box2.add(textArea);
+//            box2.add(okButton);
+//            jf.add(box2);
+//            jf.setVisible(true);
+//            synchronized (lock2) {
+//                    try {
+//                        lock2.wait();
+//                    } catch (InterruptedException ex) {
+//                        ex.printStackTrace();
+//                    }
+//            }
             String[][] datas1 = new String[instructions.length][5];
             for (int i = 0; i < instructions.length; i++) {
                 datas1[i][0]=instructions[i].getInst();
@@ -567,10 +605,11 @@ public class ScoreBoard {
                     }
                 }
             });
-            box3 = Box.createHorizontalBox();
+            box3 = Box.createVerticalBox();
             box3.add(new JScrollPane(table1));
             box3.add(new JScrollPane(table2));
             box3.add(new JScrollPane(table3));
+            next.setAlignmentX(0.5f);
             box3.add(next);
             jf.add(box3);
             jf.setVisible(true);
