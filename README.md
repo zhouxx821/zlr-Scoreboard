@@ -12,6 +12,7 @@
 ---
 
 # 使用说明
+以下是两种运行方式，可根据自身需求选择：
 ## 1、idea运行项目
 将项目加载到idea运行，在EditConfigurations中设置argument：
 输出控制台版本设置为
