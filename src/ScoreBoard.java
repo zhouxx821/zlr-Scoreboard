@@ -273,8 +273,11 @@ public class ScoreBoard {
             if("GUIPrint".equals(outway)) {
                 draw1(cycle, instructions, fus, result);
             }
-            else {
+            else if("ConsolePrint".equals(outway)){
                 draw2(cycle,instructions,fus,result);
+            }
+            else {
+
             }
         }
     }
@@ -320,7 +323,7 @@ public class ScoreBoard {
                 f.setRj(true);
             }
             if (fu.getName().equals(f.getQk())) {
-                f.setQj("");
+                f.setQk("");
                 f.setRk(true);
             }
         }
@@ -639,4 +642,32 @@ public class ScoreBoard {
             }
             return instructions;
          }
+
+    public void setInstructions(Instruction[] instructions) {
+        this.instructions = instructions;
     }
+
+    public void setAddTime(int addTime) {
+        this.addTime = addTime;
+    }
+
+    public void setDivTime(int divTime) {
+        this.divTime = divTime;
+    }
+
+    public void setMultTime(int multTime) {
+        this.multTime = multTime;
+    }
+
+    public int getAddTime() {
+        return addTime;
+    }
+
+    public int getDivTime() {
+        return divTime;
+    }
+
+    public int getMultTime() {
+        return multTime;
+    }
+}

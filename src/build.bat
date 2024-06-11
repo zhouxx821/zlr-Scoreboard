@@ -15,6 +15,7 @@ cd /d %~dp0
 javac -encoding UTF-8 -classpath "%~dp0\";. FU.java
 javac -encoding UTF-8 -classpath "%~dp0\";.  Instruction.java
 javac -encoding UTF-8 -classpath "%~dp0\";.  ScoreBoard.java
+javac -encoding UTF-8 -classpath "%~dp0\";. TestScoreBoard.java
 
 echo finish!
 pause
